@@ -1,10 +1,16 @@
 '''
+Area4:Using data aggregation to reduce loop overheads
+1. Combain compute_energy function into report_energy function
+2. Create body_pair, which contains all combination of bodies.
+
+Running time 41.44s
+
+
 Area3: Using local rather than global variables
 Improve area3 after improve areaa1 and area2
 1. Transfer global variable BODIES into local variable bodies for each function that takes BODIES as variable. 
 
 Runnint time: 59.12s
-
 
 
 
@@ -16,13 +22,15 @@ Running time: 59.28s
 
 
 
-
 Area1: Reducing function call overhead
 1. Combine compute_b, compute_mag functions into update_vs function, and delete compute_b, compute_mag functions
 2. Combine compute_delta into advance and report_energy function, and delete compute_delta function
 3. Move compute_rs function to advance function, and delete compute_rs function
 
 Running time: 68.4s
+
+
+Original version running time: 130.2s
 '''
 import time
 """
@@ -70,8 +78,9 @@ BODIES = {
 
 
 def update_vs(v1, v2, dt, dx, dy, dz, m1, m2):
-    b2 = dt * ((dx * dx + dy * dy + dz * dz) ** (-1.5)) * m2
-    b1 = dt * ((dx * dx + dy * dy + dz * dz) ** (-1.5)) * m1
+    b = dt * ((dx * dx + dy * dy + dz * dz) ** (-1.5)) 
+    b2 = b * m2
+    b1 = b * m1
     v1[0] -= dx * b2
     v1[1] -= dy * b2 
     v1[2] -= dz * b2 
@@ -80,19 +89,16 @@ def update_vs(v1, v2, dt, dx, dy, dz, m1, m2):
     v2[2] += dz * b1
 
 
-def advance(bodies, dt):
+def advance(dt, body_pair):
     '''
         advance the system one timestep
     '''
-    seenit = []
-    for body1 in bodies:
-        for body2 in bodies:
-            if (body1 != body2) and not (body2 in seenit):
-                ([x1, y1, z1], v1, m1) = bodies[body1]
-                ([x2, y2, z2], v2, m2) = bodies[body2]
-                (dx, dy, dz) = (x1-x2, y1-y2, z1-z2) #compute_deltas
-                update_vs(v1, v2, dt, dx, dy, dz, m1, m2)
-                seenit.append(body1)
+    bodies = BODIES
+    for body1, body2 in body_pair:
+        ([x1, y1, z1], v1, m1) = bodies[body1]
+        ([x2, y2, z2], v2, m2) = bodies[body2]
+        (dx, dy, dz) = (x1-x2, y1-y2, z1-z2) #compute_deltas
+        update_vs(v1, v2, dt, dx, dy, dz, m1, m2)
         
     for body in bodies:
         (r, [vx, vy, vz], m) = bodies[body]
@@ -101,64 +107,70 @@ def advance(bodies, dt):
         r[1] += dt * vy
         r[2] += dt * vz
 
-def compute_energy(m1, m2, dx, dy, dz):
-    return (m1 * m2) / ((dx * dx + dy * dy + dz * dz) ** 0.5)
     
-def report_energy(bodies, e=0.0):
+def report_energy(body_pair, e=0.0):
     '''
         compute the energy and return it so that it can be printed
     '''
-    seenit = []
-    for body1 in bodies:
-        for body2 in bodies:
-            if (body1 != body2) and not (body2 in seenit):
-                ((x1, y1, z1), v1, m1) = bodies[body1]
-                ((x2, y2, z2), v2, m2) = bodies[body2]
-                (dx, dy, dz) = (x1-x2, y1-y2, z1-z2) #compute_deltas
-                e -= compute_energy(m1, m2, dx, dy, dz)
-                seenit.append(body1)
-        
+    bodies = BODIES
+    for body1, body2 in body_pair:
+        ((x1, y1, z1), v1, m1) = bodies[body1]
+        ((x2, y2, z2), v2, m2) = bodies[body2]
+        (dx, dy, dz) = (x1-x2, y1-y2, z1-z2) #compute_deltas
+        e -=  (m1 * m2) / ((dx * dx + dy * dy + dz * dz) ** 0.5) #compute_energy
     for body in bodies:
         (r, [vx, vy, vz], m) = bodies[body]
         e += m * (vx * vx + vy * vy + vz * vz) / 2.
-        
+
     return e
 
-def offset_momentum(ref, bodies, px=0.0, py=0.0, pz=0.0):
+def offset_momentum(ref, px=0.0, py=0.0, pz=0.0):
     '''
         ref is the body in the center of the system
         offset values from this reference
     '''
+    bodies = BODIES
     for body in bodies:
         (r, [vx, vy, vz], m) = bodies[body]
         px -= vx * m
         py -= vy * m
         pz -= vz * m
-        
     (r, v, m) = ref
     v[0] = px / m
     v[1] = py / m
-    v[2] = pz / m
 
 
-def nbody(loops, reference, iterations, bodies):
+def nbody(loops, reference, iterations, bp):
     '''
         nbody simulation
         loops - number of loops to run
         reference - body at center of system
         iterations - number of timesteps to advance
     '''
+    bodies = BODIES
     # Set up global state
-    offset_momentum(bodies[reference], bodies)
+    offset_momentum(bodies[reference])
 
     for _ in range(loops):
-        report_energy(bodies)
+        report_energy(bp)
         for _ in range(iterations):
-            advance(bodies, 0.01)
-        print(report_energy(bodies))
+            advance(0.01, bp)
+        print(report_energy(bp))
 
 if __name__ == '__main__':
+
+    body_pair = [('sun','saturn'),
+            ('sun','jupiter'),
+            ('sun','neptune'),
+            ('sun','uranus'),
+            ('saturn','jupiter'),
+            ('saturn','neptune'),
+            ('saturn','uranus'),
+            ('jupiter','neptune'),
+            ('jupiter','uranus'),
+            ('neptune','uranus')]
+
     t1 = time.time()
-    nbody(100, 'sun', 20000, BODIES)
+    nbody(100, 'sun', 20000, body_pair)
     t2 = time.time()
     print("Total time is ", (t2-t1))
