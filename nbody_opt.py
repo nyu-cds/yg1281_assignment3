@@ -2,6 +2,7 @@
 Author: Yuting Gui
 
 
+
 Opt version running time 41.44s
 Original version running time: 130.2s
 
@@ -51,19 +52,6 @@ BODIES = {
                  -9.51592254519715870e-05 * DAYS_PER_YEAR],
                 5.15138902046611451e-05 * SOLAR_MASS)}
 
-
-def update_vs(v1, v2, dt, dx, dy, dz, m1, m2):
-    b = dt * ((dx * dx + dy * dy + dz * dz) ** (-1.5)) 
-    b2 = b * m2
-    b1 = b * m1
-    v1[0] -= dx * b2
-    v1[1] -= dy * b2 
-    v1[2] -= dz * b2 
-    v2[0] += dx * b1 
-    v2[1] += dy * b1
-    v2[2] += dz * b1
-
-
 def advance(dt, body_pair):
     '''
         advance the system one timestep
@@ -73,7 +61,17 @@ def advance(dt, body_pair):
         ([x1, y1, z1], v1, m1) = bodies[body1]
         ([x2, y2, z2], v2, m2) = bodies[body2]
         (dx, dy, dz) = (x1-x2, y1-y2, z1-z2) #compute_deltas
-        update_vs(v1, v2, dt, dx, dy, dz, m1, m2)
+        
+        # update vs
+        b = dt * ((dx * dx + dy * dy + dz * dz) ** (-1.5)) 
+        b2 = b * m2
+        b1 = b * m1
+        v1[0] -= dx * b2
+        v1[1] -= dy * b2 
+        v1[2] -= dz * b2 
+        v2[0] += dx * b1 
+        v2[1] += dy * b1
+        v2[2] += dz * b1
         
     for body in bodies:
         (r, [vx, vy, vz], m) = bodies[body]
