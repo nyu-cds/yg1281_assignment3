@@ -1,12 +1,16 @@
 '''
 Author: Yuting Gui
 
-
-
+Date: 2/11
 Opt version running time 41.44s
 Original version running time: 130.2s
-
 R = 3.14
+
+
+Date:2/18
+Opt version running time: 39.19s
+Original version running time:130.2s
+R = 3.32
 '''
 import time
 """
