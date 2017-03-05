@@ -16,8 +16,14 @@ Date:2/24
 Exploit chain and combinations methods from itertools
 Iter version running time: 37.23s
 R = 3.49
+
+
+Date:3/3
+Use cPython and line_profiling to locate the functions and lines where the most time is being spent in the nbody_iter.py.
+The function "advance" (line 32) is the most time consuming function.
 '''
 import time
+import cProfile
 from itertools import *
 """
     N-body simulation.
@@ -33,6 +39,7 @@ def advance(dt):
     for (body1, body2) in body_pair:
         ([x1, y1, z1], v1, m1) = bodies[body1]
         ([x2, y2, z2], v2, m2) = bodies[body2]
+        
         (dx, dy, dz) = (x1-x2, y1-y2, z1-z2) #compute_deltas
         
         # update vs
@@ -144,6 +151,6 @@ if __name__ == '__main__':
 
 
     t1 = time.time()
-    nbody(100, 'sun', 20000)
+    cProfile.run("nbody(100, 'sun', 20000)")
     t2 = time.time()
     print("Total time is ", (t2-t1))
