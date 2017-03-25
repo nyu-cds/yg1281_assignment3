@@ -97,10 +97,10 @@ cdef nbody(int loops, reference, int iterations, bp, bodies):
             advance(0.01, bp, bodies)
         print(report_energy(bp, bodies))
 
-cdef main():
-    float PI = 3.14159265358979323
-    float SOLAR_MASS = 4 * (3.14159265358979323**2)
-    float DAYS_PER_YEAR = 365.24
+def main():
+    PI = 3.14159265358979323
+    SOLAR_MASS = 4 * (3.14159265358979323**2)
+    DAYS_PER_YEAR = 365.24
     
     BODIES = {
         'sun': ([0.0, 0.0, 0.0], [0.0, 0.0, 0.0], SOLAR_MASS),
