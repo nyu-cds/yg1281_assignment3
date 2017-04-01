@@ -78,7 +78,8 @@ def offset_momentum(ref, px=0.0, py=0.0, pz=0.0):
     v[0] = px / m
     v[1] = py / m
 
-
+# @jit
+@jit('void(int64,int64)')
 def nbody(loops, iterations):
     '''
         nbody simulation
