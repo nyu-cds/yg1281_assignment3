@@ -6,6 +6,8 @@ Opt version running time 68.0053
 jit version running time 64.988
 jit+signature version runningtime: 57.869
 
+Only adding jit to the nbody function will improve the performance. If adding @jit to def advance or report_energy or offset_momentum will slow down the script. 
+
 Adding vec_delta: 104.846, it is slow down the running process, probably because of the array dimension is too small
 '''
 from numba import jit, int64, float32, float64, vectorize
