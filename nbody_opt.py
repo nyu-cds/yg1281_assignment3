@@ -16,7 +16,6 @@ import time
 """
     N-body simulation.
 """
-
 def advance(dt, body_pair):
     '''
         advance the system one timestep
@@ -148,6 +147,6 @@ if __name__ == '__main__':
             ('neptune','uranus')]
 
     t1 = time.time()
-    nbody(100, 'sun', 20000, body_pair)
+    nbody(10, 'sun', 20000, body_pair)
     t2 = time.time()
     print("Total time is ", (t2-t1))
